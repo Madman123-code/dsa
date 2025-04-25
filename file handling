@@ -1,0 +1,127 @@
+#include <iostream>
+#include <fstream>
+#include <map>
+using namespace std;
+
+// Employee structure
+struct Employee {
+    int id;
+    char name[50];
+    char designation[50];
+    float salary;
+};
+
+// Save index to a file
+void saveIndex(map<int, streampos>& indexMap) {
+    ofstream idxFile("index.dat", ios::binary | ios::trunc);
+    for (auto& entry : indexMap) {
+        idxFile.write((char*)&entry.first, sizeof(int));
+        idxFile.write((char*)&entry.second, sizeof(streampos));
+    }
+    idxFile.close();
+}
+
+// Load index from a file
+void loadIndex(map<int, streampos>& indexMap) {
+    indexMap.clear();
+    ifstream idxFile("index.dat", ios::binary);
+    int id;
+    streampos pos;
+    while (idxFile.read((char*)&id, sizeof(int))) {
+        idxFile.read((char*)&pos, sizeof(streampos));
+        indexMap[id] = pos;
+    }
+    idxFile.close();
+}
+
+// Add employee
+void addEmployee(map<int, streampos>& indexMap) {
+    ofstream outFile("employee.dat", ios::binary | ios::app);
+    Employee emp;
+    cout << "Enter ID: ";
+    cin >> emp.id;
+    cout << "Enter Name: ";
+    cin.ignore();
+    cin.getline(emp.name, 50);
+    cout << "Enter Designation: ";
+    cin.getline(emp.designation, 50);
+    cout << "Enter Salary: ";
+    cin >> emp.salary;
+
+    streampos pos = outFile.tellp();
+    outFile.write((char*)&emp, sizeof(emp));
+    indexMap[emp.id] = pos;
+
+    outFile.close();
+    saveIndex(indexMap);
+}
+
+// Display employee
+void displayEmployee(map<int, streampos>& indexMap) {
+    int id;
+    cout << "Enter ID to search: ";
+    cin >> id;
+
+    auto it = indexMap.find(id);
+    if (it == indexMap.end()) {
+        cout << "Employee not found!\n";
+        return;
+    }
+
+    ifstream inFile("employee.dat", ios::binary);
+    inFile.seekg(it->second);
+    Employee emp;
+    inFile.read((char*)&emp, sizeof(emp));
+    inFile.close();
+
+    cout << "\n--- Employee Details ---\n";
+    cout << "ID: " << emp.id << "\n";
+    cout << "Name: " << emp.name << "\n";
+    cout << "Designation: " << emp.designation << "\n";
+    cout << "Salary: " << emp.salary << "\n";
+}
+
+// Delete employee
+void deleteEmployee(map<int, streampos>& indexMap) {
+    int id;
+    cout << "Enter ID to delete: ";
+    cin >> id;
+
+    auto it = indexMap.find(id);
+    if (it == indexMap.end()) {
+        cout << "Employee not found!\n";
+        return;
+    }
+
+    indexMap.erase(it);
+    saveIndex(indexMap);
+    cout << "Employee deleted from index. (Soft delete)\n";
+}
+
+// Main menu
+int main() {
+    map<int, streampos> indexMap;
+    loadIndex(indexMap);
+
+    int choice;
+    do {
+        cout << "\n----- Employee Management -----\n";
+        cout << "1. Add Employee\n";
+        cout << "2. Display Employee\n";
+        cout << "3. Delete Employee\n";
+        cout << "4. Exit\n";
+        cout << "Enter choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1: addEmployee(indexMap); break;
+            case 2: displayEmployee(indexMap); break;
+            case 3: deleteEmployee(indexMap); break;
+            case 4: cout << "Exiting...\n"; break;
+            default: cout << "Invalid choice!\n";
+        }
+
+    } while (choice != 4);
+
+    return 0;
+}
