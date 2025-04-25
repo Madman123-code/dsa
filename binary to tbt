@@ -1,0 +1,81 @@
+#include <iostream>
+using namespace std;
+
+struct Node {
+    int data;
+    Node* left;
+    Node* right;
+    bool rightThread; // true if right pointer is a thread
+};
+
+// Create a new node
+Node* createNode(int data) {
+    Node* node = new Node();
+    node->data = data;
+    node->left = node->right = nullptr;
+    node->rightThread = false;
+    return node;
+}
+
+// Insert in a normal binary search tree
+Node* insert(Node* root, int data) {
+    if (root == nullptr)
+        return createNode(data);
+    if (data < root->data)
+        root->left = insert(root->left, data);
+    else
+        root->right = insert(root->right, data);
+    return root;
+}
+
+// Convert to Threaded Binary Tree using inorder traversal
+void createThreads(Node* root, Node*& prev) {
+    if (root == nullptr) return;
+
+    createThreads(root->left, prev);
+
+    if (prev != nullptr && prev->right == nullptr) {
+        prev->right = root;
+        prev->rightThread = true;
+    }
+    prev = root;
+
+    createThreads(root->right, prev);
+}
+
+// Find leftmost node
+Node* leftmost(Node* node) {
+    while (node && node->left)
+        node = node->left;
+    return node;
+}
+
+// Inorder traversal using threads (no recursion, no stack)
+void inorderThreaded(Node* root) {
+    Node* cur = leftmost(root);
+    while (cur != nullptr) {
+        cout << cur->data << " ";
+        if (cur->rightThread)
+            cur = cur->right;
+        else
+            cur = leftmost(cur->right);
+    }
+}
+
+// MAIN FUNCTION
+int main() {
+    Node* root = nullptr;
+    int values[] = {20, 10, 30, 5, 15, 25, 35};
+
+    for (int v : values)
+        root = insert(root, v);
+
+    Node* prev = nullptr;
+    createThreads(root, prev);
+
+    cout << "Inorder Traversal (Threaded): ";
+    inorderThreaded(root);
+    cout << "\n";
+
+    return 0;
+}
