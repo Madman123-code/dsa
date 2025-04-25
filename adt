@@ -1,0 +1,68 @@
+class MySet:
+    def __init__(self):
+        self.elements = []
+
+    def add(self, value):
+        if value not in self.elements:
+            self.elements.append(value)
+        print("After Add:", self.elements)
+
+    def remove(self, value):
+        if value in self.elements:
+            self.elements.remove(value)
+        print("After Remove:", self.elements)
+
+    def contains(self, value):
+        if value in self.elements:
+            print(f"{value} is in the set")
+        else:
+            print(f"{value} is NOT in the set")
+
+    def size(self):
+        print("Size:", len(self.elements))
+
+    def print_set(self):
+        print("Current Set:", self.elements)
+
+    def intersection(self, other):
+        result = [val for val in self.elements if val in other.elements]
+        print("Intersection:", result)
+
+    def union(self, other):
+        result = self.elements.copy()
+        for val in other.elements:
+            if val not in result:
+                result.append(val)
+        print("Union:", result)
+
+    def difference(self, other):
+        result = [val for val in self.elements if val not in other.elements]
+        print("Difference (A - B):", result)
+
+    def is_subset(self, other):
+        if all(val in other.elements for val in self.elements):
+            print("Is a subset")
+        else:
+            print("Not a subset")
+
+
+# DEMO
+A = MySet()
+B = MySet()
+
+A.add(1)
+A.add(2)
+A.add(3)
+
+B.add(2)
+B.add(3)
+B.add(4)
+
+A.remove(1)
+A.contains(3)
+A.size()
+
+A.intersection(B)
+A.union(B)
+A.difference(B)
+A.is_subset(B)
