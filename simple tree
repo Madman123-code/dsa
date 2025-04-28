@@ -1,0 +1,49 @@
+class Node:
+    def __init__(self, name):
+        self.name = name
+        self.children = []
+
+def create_and_print_book():
+    # Create root node
+    book = Node("HC Verma")
+
+    # Create chapters
+    chapter1 = Node("Motion")
+    chapter2 = Node("Kinetics")
+
+    # Create sections under chapter 1
+    section1_1 = Node("Section 1.1")
+    section1_2 = Node("Section 1.2")
+
+    # Create subsections under section 1.1
+    subsection1_1_1 = Node("Subsection 1.1.1")
+    subsection1_1_2 = Node("Subsection 1.1.2")
+
+    section1_1.children.append(subsection1_1_1)
+    section1_1.children.append(subsection1_1_2)
+
+    chapter1.children.append(section1_1)
+    chapter1.children.append(section1_2)
+
+    # Create sections under chapter 2
+    section2_1 = Node("Section 2.1")
+    section2_2 = Node("Section 2.2")
+
+    chapter2.children.append(section2_1)
+    chapter2.children.append(section2_2)
+
+    # Add chapters to book
+    book.children.append(chapter1)
+    book.children.append(chapter2)
+
+    # Function to print tree
+    def print_tree(node, level=0):
+        print('  ' * level + node.name)
+        for child in node.children:
+            print_tree(child, level + 1)
+
+    # Now print the book structure
+    print_tree(book)
+
+# Call the function
+create_and_print_book()
